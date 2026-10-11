@@ -1,26 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
+import { messages, signalKeys } from "./i18n.js";
 const pct = (v) => `${Math.round(v * 100)}%`;
-async function api(path, options) {
+async function api(path, options, language) {
   const r = await fetch("/api" + path, options);
   const b = await r.json();
   if (!r.ok)
     throw new Error(
-      typeof b.detail === "string" ? b.detail : "İşlem başarısız.",
+      typeof b.detail === "string" ? b.detail : messages[language].apiError,
     );
   return b;
 }
 function App() {
-  const [data, setData] = useState(null),
+  const [language, setLanguage] = useState(() =>
+      localStorage.getItem("operasyon-radar-language") === "en" ? "en" : "tr",
+    ),
+    [data, setData] = useState(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
-    [filter, setFilter] = useState("Tümü"),
+    [filter, setFilter] = useState("all"),
     [query, setQuery] = useState(""),
     [selected, setSelected] = useState(null),
     [explanation, setExplanation] = useState(null);
+  const t = messages[language];
+  function changeLanguage(nextLanguage) {
+    setLanguage(nextLanguage);
+    setExplanation(null);
+    setError("");
+  }
+  useEffect(() => {
+    localStorage.setItem("operasyon-radar-language", language);
+    document.documentElement.lang = language;
+  }, [language]);
   async function refresh() {
-    const d = await api("/dashboard");
+    const d = await api("/dashboard", undefined, language);
     setData(d);
     setSelected(null);
     setExplanation(null);
@@ -46,14 +60,14 @@ function App() {
     run(async () => {
       const body = new FormData();
       body.append("file", file);
-      await api(path, { method: "POST", body });
+      await api(path, { method: "POST", body }, language);
       await refresh();
     });
   }
   const rows = data?.orders || [],
     shown = rows.filter(
       (x) =>
-        (filter === "Tümü" || x.level === filter) &&
+        (filter === "all" || x.level === ({ high: "Yüksek", medium: "Orta", low: "Düşük" }[filter])) &&
         x.order_id.toLowerCase().includes(query.toLowerCase()),
     );
   const high = rows.filter((x) => x.level === "Yüksek").length,
@@ -64,11 +78,15 @@ function App() {
         <div className="brand">
           <span className="logo">◎</span> operasyon<span>radar</span>
         </div>
-        <div className="workspace">OPERASYON MERKEZİ</div>
-        <div className="nav active">◫ Genel bakış</div>
-        <div className="nav">↗ Sipariş riskleri</div>
+        <div className="language-switch" role="group" aria-label={language === "en" ? "Language" : "Dil"}>
+          <button className={language === "tr" ? "selected" : ""} onClick={() => changeLanguage("tr")} aria-pressed={language === "tr"}>TR</button>
+          <button className={language === "en" ? "selected" : ""} onClick={() => changeLanguage("en")} aria-pressed={language === "en"}>EN</button>
+        </div>
+        <div className="workspace">{t.workspace}</div>
+        <div className="nav active">◫ {t.overview}</div>
+        <div className="nav">↗ {t.risks}</div>
         <div className="aside-note">
-          Yerel geliştirme sürümü
+          {t.local}
           <br />
           <strong>React + Python + Ollama</strong>
         </div>
@@ -76,24 +94,27 @@ function App() {
       <main>
         <header>
           <div>
-            <small>OPERASYON / GENEL BAKIŞ</small>
-            <h1>Gecikmeden önce harekete geç.</h1>
-            <p>
-              Sipariş risklerini gör, önceliklerini belirle, veriyi aksiyona
-              dönüştür.
-            </p>
+            <small>{t.eyebrow}</small>
+            <h1>{t.title}</h1>
+            <p>{t.subtitle}</p>
           </div>
-          <button
-            disabled={busy}
-            onClick={() =>
-              run(async () => {
-                await api("/demo", { method: "POST" });
-                await refresh();
-              })
-            }
-          >
-            Demo verisini yenile
-          </button>
+          <div className="header-actions">
+            <div className="language-switch mobile-language" role="group" aria-label={language === "en" ? "Language" : "Dil"}>
+              <button className={language === "tr" ? "selected" : ""} onClick={() => changeLanguage("tr")} aria-pressed={language === "tr"}>TR</button>
+              <button className={language === "en" ? "selected" : ""} onClick={() => changeLanguage("en")} aria-pressed={language === "en"}>EN</button>
+            </div>
+            <button
+              disabled={busy}
+              onClick={() =>
+                run(async () => {
+                  await api("/demo", { method: "POST" }, language);
+                  await refresh();
+                })
+              }
+            >
+              {t.refreshDemo}
+            </button>
+          </div>
         </header>
         {error && (
           <div role="alert" className="error">
@@ -102,60 +123,60 @@ function App() {
         )}
         {busy && (
           <div role="status" className="notice">
-            İşlem sürüyor…
+            {t.busy}
           </div>
         )}
         <div className="notice">
           {data?.metrics.source === "sentetik demo"
-            ? "SENTETİK DEMO - Sonuçlar gerçek firma performansını göstermez."
-            : "CSV MODELİ • Tahmin için açık sipariş CSV’sini yükleyin."}{" "}
-          Risk skorları kalibrasyon garantisi taşımaz.
+            ? t.syntheticNotice
+            : t.csvNotice}{" "}
+          {t.calibration}
         </div>
         <section className="cards">
           <article>
-            <small>İNCELENEN SİPARİŞ</small>
+            <small>{t.reviewed}</small>
             <strong>{rows.length}</strong>
-            <span>Tahmin bekleyen operasyonlar</span>
+            <span>{t.reviewedHint}</span>
           </article>
           <article>
-            <small>YÜKSEK RİSK</small>
+            <small>{t.highRisk}</small>
             <strong className="orange">{high}</strong>
-            <span>%65 ve üzeri model skoru</span>
+            <span>{t.highHint}</span>
           </article>
           <article>
-            <small>ORTALAMA RİSK SKORU</small>
+            <small>{t.averageRisk}</small>
             <strong>{pct(avg)}</strong>
-            <span>Mevcut sipariş havuzu</span>
+            <span>{t.averageHint}</span>
           </article>
           <article>
-            <small>TEST ROC-AUC</small>
+            <small>{t.rocAuc}</small>
             <strong>{data ? data.metrics.roc_auc.toFixed(2) : "—"}</strong>
-            <span>Tarihe göre ayrılan test kümesi</span>
+            <span>{t.rocHint}</span>
           </article>
         </section>
         <div className="grid">
           <section className="panel orders">
             <div className="panel-head">
               <div>
-                <h2>Sipariş radarın</h2>
-                <p>En yüksek riskli siparişler önce listelenir.</p>
+                <h2>{t.orderRadar}</h2>
+                <p>{t.sortHint}</p>
               </div>
-              <span className="pill">{shown.length} sipariş</span>
+              <span className="pill">{shown.length} {t.orderCount}</span>
             </div>
             <div className="filters">
               <input
-                aria-label="Sipariş ara"
-                placeholder="Sipariş numarası ara…"
+                aria-label={t.search}
+                placeholder={t.searchPlaceholder}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
               <select
-                aria-label="Risk filtresi"
+                aria-label={t.riskFilter}
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               >
-                {["Tümü", "Yüksek", "Orta", "Düşük"].map((x) => (
-                  <option key={x}>{x}</option>
+                {["all", "high", "medium", "low"].map((x) => (
+                  <option key={x} value={x}>{t[x]}</option>
                 ))}
               </select>
             </div>
@@ -163,10 +184,10 @@ function App() {
               <table>
                 <thead>
                   <tr>
-                    <th>Sipariş</th>
-                    <th>Mesafe</th>
-                    <th>Risk skoru</th>
-                    <th>Seviye</th>
+                    <th>{t.order}</th>
+                    <th>{t.distance}</th>
+                    <th>{t.riskScore}</th>
+                    <th>{t.level}</th>
                     <th />
                   </tr>
                 </thead>
@@ -197,7 +218,7 @@ function App() {
                                 : "low")
                           }
                         >
-                          {o.level}
+                          {t[o.level === "Yüksek" ? "high" : o.level === "Orta" ? "medium" : "low"]}
                         </span>
                       </td>
                       <td>
@@ -208,7 +229,7 @@ function App() {
                             setExplanation(null);
                           }}
                         >
-                          İncele →
+                          {t.inspect}
                         </button>
                       </td>
                     </tr>
@@ -217,31 +238,30 @@ function App() {
               </table>
               {!shown.length && (
                 <p className="empty">
-                  Sipariş bulunamadı. Açık sipariş CSV’si yükleyin.
+                  {t.notFound}
                 </p>
               )}
             </div>
           </section>
           <section className="panel detail">
-            <small className="accent">SİPARİŞ İÇGÖRÜSÜ</small>
-            <h2>{selected?.order_id || "Önceliğini keşfet"}</h2>
+            <small className="accent">{t.insight}</small>
+            <h2>{selected?.order_id || t.discover}</h2>
             {selected ? (
               <>
                 <div className="big-risk">
                   {pct(selected.risk)}
-                  <span>model risk skoru</span>
+                  <span>{t.modelRisk}</span>
                 </div>
                 <p>
-                  {selected.quantity} adet · {selected.promised_days} gün
-                  taahhüt
+                  {selected.quantity} {t.units} · {selected.promised_days} {t.days}
                 </p>
-                <h3>Operasyon sinyalleri</h3>
+                <h3>{t.signals}</h3>
                 <p className="muted">
-                  Eşik tabanlı gözlemler; modelin nedensel açıklaması değildir.
+                  {t.signalDisclaimer}
                 </p>
                 {selected.signals.map((s) => (
                   <div className="signal" key={s}>
-                    {s}
+                    {t[signalKeys[s]] || s}
                   </div>
                 ))}
                 <button
@@ -251,21 +271,22 @@ function App() {
                     run(async () =>
                       setExplanation(
                         await api(
-                          "/explain/" + encodeURIComponent(selected.order_id),
+                          "/explain/" + encodeURIComponent(selected.order_id) + "?lang=" + language,
                           { method: "POST" },
+                          language,
                         ),
                       ),
                     )
                   }
                 >
-                  Ollama ile yorumla
+                  {t.explain}
                 </button>
                 {explanation && (
                   <div className="explanation">
                     <small>
                       {explanation.source === "ollama"
-                        ? "OLLAMA YORUMU"
-                        : "OLLAMA BAĞLANTISI YOK • KURAL ÖZETİ"}
+                        ? t.ollamaComment
+                        : t.noOllama}
                     </small>
                     <p>{explanation.text}</p>
                   </div>
@@ -275,8 +296,7 @@ function App() {
               <>
                 <div className="radar">◎</div>
                 <p>
-                  Bir sipariş seçerek operasyon sinyallerini ve AI yorumunu
-                  incele.
+                  {t.chooseOrder}
                 </p>
               </>
             )}
@@ -284,14 +304,13 @@ function App() {
         </div>
         <section className="panel training">
           <div>
-            <h2>Veriden modele</h2>
+            <h2>{t.dataToModel}</h2>
             <p>
-              Önce tamamlanmış siparişlerle eğit, ardından açık siparişleri
-              analiz et.
+              {t.trainingHint}
             </p>
             <div className="actions">
               <label className={busy ? "disabled" : ""}>
-                1. Eğitim CSV’si yükle
+                {t.uploadTraining}
                 <input
                   disabled={busy}
                   type="file"
@@ -300,7 +319,7 @@ function App() {
                 />
               </label>
               <label className={busy ? "disabled" : ""}>
-                2. Sipariş CSV’si yükle
+                {t.uploadOrders}
                 <input
                   disabled={busy}
                   type="file"
@@ -308,41 +327,40 @@ function App() {
                   onChange={(e) => upload(e, "/orders")}
                 />
               </label>
-              <a href="/api/template/training">Eğitim örneği ↓</a>
-              <a href="/api/template/orders">Sipariş örneği ↓</a>
+              <a href="/api/template/training">{t.trainingExample}</a>
+              <a href="/api/template/orders">{t.ordersExample}</a>
             </div>
           </div>
           {data && (
             <div className="metrics">
               <span>
-                Eğitim / test{" "}
+                {t.trainTest}{" "}
                 <b>
                   {data.metrics.train_rows} / {data.metrics.test_rows}
                 </b>
               </span>
               <span>
-                Doğruluk / temel model{" "}
+                {t.accuracy}{" "}
                 <b>
                   {pct(data.metrics.accuracy)} /{" "}
                   {pct(data.metrics.baseline_accuracy)}
                 </b>
               </span>
               <span>
-                Kesinlik / duyarlılık{" "}
+                {t.precisionRecall}{" "}
                 <b>
                   {pct(data.metrics.precision)} / {pct(data.metrics.recall)}
                 </b>
               </span>
               <span>
-                Brier skoru (düşük daha iyi){" "}
+                {t.brier}{" "}
                 <b>{data.metrics.brier.toFixed(3)}</b>
               </span>
             </div>
           )}
         </section>
         <footer>
-          Operasyon Radar · v0.1 · Model yeniden başlatmada demo verisine döner.
-          CSV verileri diske kaydedilmez.
+          {t.footer}
         </footer>
       </main>
     </div>

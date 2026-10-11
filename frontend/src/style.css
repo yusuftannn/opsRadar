@@ -84,6 +84,26 @@ aside {
   display: inline-block;
   margin-right: 7px;
 }
+.language-switch {
+  display: flex;
+  width: fit-content;
+  margin-top: 24px;
+  padding: 3px;
+  border: 1px solid #3d6257;
+  border-radius: 7px;
+}
+.language-switch button {
+  border: 0;
+  border-radius: 4px;
+  padding: 5px 9px;
+  background: transparent;
+  color: #a3c4b8;
+  font-size: 10px;
+}
+.language-switch button.selected {
+  background: #80cdb0;
+  color: #153d35;
+}
 .workspace {
   font-size: 10px;
   letter-spacing: 1.6px;
@@ -119,6 +139,15 @@ header {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mobile-language {
+  display: none;
+  margin: 0;
 }
 header button {
   white-space: nowrap;
@@ -401,6 +430,13 @@ footer {
   }
   header {
     display: block;
+  }
+  .header-actions {
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+  .mobile-language {
+    display: flex;
   }
   h1 {
     font-size: 27px;

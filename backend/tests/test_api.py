@@ -31,3 +31,6 @@ def test_ollama_fallback(monkeypatch):
     client.post('/api/demo')
     order=client.get('/api/dashboard').json()['orders'][0]
     assert client.post('/api/explain/'+order['order_id']).json()['source']=='fallback'
+    english=client.post('/api/explain/'+order['order_id'],params={'lang':'en'}).json()
+    assert english['source']=='fallback'
+    assert 'Ollama is unavailable' in english['text']
