@@ -216,6 +216,7 @@ header button {
 }
 .filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin: 8px 0 20px;
 }
@@ -229,6 +230,12 @@ select {
 }
 input {
   flex: 1;
+}
+.filters select {
+  max-width: 100%;
+}
+.export {
+  white-space: nowrap;
 }
 .table-wrap {
   overflow: auto;
@@ -317,6 +324,26 @@ td button {
   font-size: 12px;
   font-weight: 400;
   color: #81958a;
+}
+.facts {
+  margin: 0 0 20px;
+  border-top: 1px solid #edf1ee;
+}
+.facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf1ee;
+  font-size: 12px;
+}
+.facts dt {
+  color: #6d807d;
+}
+.facts dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
 }
 .muted {
   font-size: 11px;

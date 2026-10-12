@@ -21,6 +21,7 @@ function App() {
     [busy, setBusy] = useState(false),
     [filter, setFilter] = useState("all"),
     [query, setQuery] = useState(""),
+    [sortBy, setSortBy] = useState("risk"),
     [selected, setSelected] = useState(null),
     [explanation, setExplanation] = useState(null);
   const t = messages[language];
@@ -65,13 +66,36 @@ function App() {
     });
   }
   const rows = data?.orders || [],
-    shown = rows.filter(
+    filtered = rows.filter(
       (x) =>
         (filter === "all" || x.level === ({ high: "Yüksek", medium: "Orta", low: "Düşük" }[filter])) &&
         x.order_id.toLowerCase().includes(query.toLowerCase()),
-    );
+    ),
+    shown = [...filtered].sort((a, b) => {
+      if (sortBy === "date-newest") return b.order_date.localeCompare(a.order_date);
+      if (sortBy === "date-oldest") return a.order_date.localeCompare(b.order_date);
+      if (sortBy === "order-id") return a.order_id.localeCompare(b.order_id);
+      return b.risk - a.risk;
+    });
   const high = rows.filter((x) => x.level === "Yüksek").length,
     avg = rows.length ? rows.reduce((a, x) => a + x.risk, 0) / rows.length : 0;
+  function exportOrders() {
+    const columns = [
+      "order_id", "order_date", "risk", "level", "quantity",
+      "supplier_delay_rate", "workload", "distance_km", "promised_days", "signals",
+    ];
+    const csv = [columns, ...shown.map((order) => columns.map((column) =>
+      column === "signals" ? order.signals.join(" | ") : order[column],
+    ))]
+      .map((line) => line.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","))
+      .join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `operasyon-radar-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
   return (
     <div className="shell">
       <aside>
@@ -179,6 +203,19 @@ function App() {
                   <option key={x} value={x}>{t[x]}</option>
                 ))}
               </select>
+              <select
+                aria-label={t.sortOrders}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="risk">{t.sortRisk}</option>
+                <option value="date-newest">{t.sortNewest}</option>
+                <option value="date-oldest">{t.sortOldest}</option>
+                <option value="order-id">{t.sortOrderId}</option>
+              </select>
+              <button className="export" disabled={!shown.length} onClick={exportOrders}>
+                {t.exportCsv}
+              </button>
             </div>
             <div className="table-wrap">
               <table>
@@ -252,9 +289,14 @@ function App() {
                   {pct(selected.risk)}
                   <span>{t.modelRisk}</span>
                 </div>
-                <p>
-                  {selected.quantity} {t.units} · {selected.promised_days} {t.days}
-                </p>
+                <h3>{t.operationalData}</h3>
+                <dl className="facts">
+                  <div><dt>{t.quantity}</dt><dd>{selected.quantity} {t.units}</dd></div>
+                  <div><dt>{t.supplierDelayRate}</dt><dd>{pct(selected.supplier_delay_rate)}</dd></div>
+                  <div><dt>{t.workload}</dt><dd>{pct(selected.workload)}</dd></div>
+                  <div><dt>{t.distance}</dt><dd>{selected.distance_km} km</dd></div>
+                  <div><dt>{t.promisedDays}</dt><dd>{selected.promised_days} {t.days}</dd></div>
+                </dl>
                 <h3>{t.signals}</h3>
                 <p className="muted">
                   {t.signalDisclaimer}
