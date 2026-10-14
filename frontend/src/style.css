@@ -188,6 +188,95 @@ header button {
   font-size: 11px;
   color: #879591;
 }
+.insights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0 0 22px;
+}
+.distribution-list {
+  display: grid;
+  gap: 8px;
+}
+.distribution-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px 10px;
+  border-color: transparent;
+  padding: 8px 10px;
+  text-align: left;
+}
+.distribution-item.active {
+  border-color: #b9d7c8;
+  background: #f3f8f4;
+  color: #214c44;
+}
+.distribution-item > span:nth-child(2) {
+  font-size: 12px;
+}
+.distribution-item strong,
+.signal-stat strong {
+  font-size: 12px;
+  color: #29453b;
+}
+.distribution-mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.distribution-track {
+  grid-column: 2 / 4;
+  height: 5px;
+  background: #edf2ee;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.distribution-track > span,
+.signal-stat-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 180ms ease;
+}
+.distribution-track > .high,
+.distribution-mark.high {
+  background: #c86d37;
+}
+.distribution-track > .medium,
+.distribution-mark.medium {
+  background: #d2a832;
+}
+.distribution-track > .low,
+.distribution-mark.low {
+  background: #5c9b70;
+}
+.signal-stats {
+  display: grid;
+  gap: 13px;
+}
+.signal-stat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 24px;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.signal-stat > span {
+  color: #526862;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.signal-stat-track {
+  height: 5px;
+  background: #edf2ee;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.signal-stat-track > span {
+  background: #4d9577;
+}
 .orange {
   color: #c86d37;
 }
@@ -219,6 +308,17 @@ header button {
   flex-wrap: wrap;
   gap: 12px;
   margin: 8px 0 20px;
+}
+.date-filter {
+  display: grid;
+  gap: 4px;
+  min-width: 135px;
+  color: #6d807d;
+  font-size: 10px;
+}
+.date-filter input {
+  width: 100%;
+  padding: 9px 8px;
 }
 input,
 select {
@@ -443,6 +543,10 @@ footer {
   .grid {
     grid-template-columns: 1fr;
   }
+  .insights {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
   .training {
     flex-direction: column;
   }
@@ -479,6 +583,9 @@ footer {
   }
   .filters {
     flex-wrap: wrap;
+  }
+  .date-filter {
+    flex: 1 1 135px;
   }
   .actions {
     gap: 8px;

@@ -21,6 +21,8 @@ function App() {
     [busy, setBusy] = useState(false),
     [filter, setFilter] = useState("all"),
     [query, setQuery] = useState(""),
+    [dateFrom, setDateFrom] = useState(""),
+    [dateTo, setDateTo] = useState(""),
     [sortBy, setSortBy] = useState("risk"),
     [selected, setSelected] = useState(null),
     [explanation, setExplanation] = useState(null);
@@ -69,6 +71,8 @@ function App() {
     filtered = rows.filter(
       (x) =>
         (filter === "all" || x.level === ({ high: "Yüksek", medium: "Orta", low: "Düşük" }[filter])) &&
+        (!dateFrom || x.order_date >= dateFrom) &&
+        (!dateTo || x.order_date <= dateTo) &&
         x.order_id.toLowerCase().includes(query.toLowerCase()),
     ),
     shown = [...filtered].sort((a, b) => {
@@ -77,6 +81,23 @@ function App() {
       if (sortBy === "order-id") return a.order_id.localeCompare(b.order_id);
       return b.risk - a.risk;
     });
+  const levels = [
+      { key: "high", value: "Yüksek", className: "high" },
+      { key: "medium", value: "Orta", className: "medium" },
+      { key: "low", value: "Düşük", className: "low" },
+    ],
+    distribution = levels.map((level) => ({
+      ...level,
+      count: rows.filter((order) => order.level === level.value).length,
+    })),
+    signalCounts = shown
+      .flatMap((order) => order.signals)
+      .reduce((counts, signal) => {
+        counts[signal] = (counts[signal] || 0) + 1;
+        return counts;
+      }, {}),
+    signalStats = Object.entries(signalCounts).sort((a, b) => b[1] - a[1]),
+    maxSignalCount = Math.max(1, ...signalStats.map(([, count]) => count));
   const high = rows.filter((x) => x.level === "Yüksek").length,
     avg = rows.length ? rows.reduce((a, x) => a + x.risk, 0) / rows.length : 0;
   function exportOrders() {
@@ -178,6 +199,61 @@ function App() {
             <span>{t.rocHint}</span>
           </article>
         </section>
+        <section className="insights">
+          <div className="panel distribution">
+            <div className="panel-head">
+              <div>
+                <h2>{t.riskDistribution}</h2>
+                <p>{t.distributionHint}</p>
+              </div>
+              <span className="pill">{rows.length} {t.orderCount}</span>
+            </div>
+            <div className="distribution-list">
+              {distribution.map((level) => (
+                <button
+                  className={`distribution-item ${filter === level.key ? "active" : ""}`}
+                  key={level.key}
+                  onClick={() => setFilter(filter === level.key ? "all" : level.key)}
+                  aria-pressed={filter === level.key}
+                >
+                  <span className={`distribution-mark ${level.className}`} />
+                  <span>{t[level.key]}</span>
+                  <strong>{level.count}</strong>
+                  <span className="distribution-track">
+                    <span
+                      className={level.className}
+                      style={{ width: `${rows.length ? (level.count / rows.length) * 100 : 0}%` }}
+                    />
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="panel signal-summary">
+            <div className="panel-head">
+              <div>
+                <h2>{t.signalFrequency}</h2>
+                <p>{t.signalFrequencyHint}</p>
+              </div>
+              <span className="pill">{shown.length} {t.matchingOrders}</span>
+            </div>
+            {signalStats.length ? (
+              <div className="signal-stats">
+                {signalStats.map(([signal, count]) => (
+                  <div className="signal-stat" key={signal}>
+                    <span>{t[signalKeys[signal]] || signal}</span>
+                    <div className="signal-stat-track">
+                      <span style={{ width: `${(count / maxSignalCount) * 100}%` }} />
+                    </div>
+                    <strong>{count}</strong>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="empty">{t.noSignalMatches}</p>
+            )}
+          </div>
+        </section>
         <div className="grid">
           <section className="panel orders">
             <div className="panel-head">
@@ -203,6 +279,26 @@ function App() {
                   <option key={x} value={x}>{t[x]}</option>
                 ))}
               </select>
+              <label className="date-filter">
+                <span>{t.dateFrom}</span>
+                <input
+                  aria-label={t.dateFrom}
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                />
+              </label>
+              <label className="date-filter">
+                <span>{t.dateTo}</span>
+                <input
+                  aria-label={t.dateTo}
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={(e) => setDateTo(e.target.value)}
+                />
+              </label>
               <select
                 aria-label={t.sortOrders}
                 value={sortBy}
