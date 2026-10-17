@@ -45,3 +45,26 @@ def test_portfolio_brief_fallback(monkeypatch):
     assert english['source']=='fallback'
     assert '40 open orders' in english['text']
     assert 'Tedarikçi' not in english['text']
+
+def test_schedule_plan_fallback_and_ollama(monkeypatch):
+    import main
+    monkeypatch.setenv('OLLAMA_URL','http://127.0.0.1:1')
+    client.post('/api/demo')
+    fallback=client.post('/api/schedule-plan').json()
+    assert fallback['source']=='fallback'
+    assert '40 açık sipariş' in fallback['text']
+    assert 'Önce ' in fallback['text']
+
+    async def fake_generate(prompt, num_predict):
+        assert 'priority_dates' in prompt
+        assert 'capacity overload' in prompt
+        return 'Genel durum: tamam.'
+
+    monkeypatch.setattr(main,'ollama_generate',fake_generate)
+    generated=client.post('/api/schedule-plan',params={'lang':'en'}).json()
+    assert generated=={'source':'ollama','text':'Genel durum: tamam.'}
+
+def test_schedule_plan_without_orders():
+    client.post('/api/train',files={'file':('data.csv',demo_data().to_csv(index=False),'text/csv')})
+    response=client.post('/api/schedule-plan').json()
+    assert response=={'source':'fallback','text':'Teslimat planı için açık sipariş bulunmuyor.'}

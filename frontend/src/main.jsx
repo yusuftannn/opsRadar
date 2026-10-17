@@ -156,7 +156,7 @@ function App() {
           sortBy={sortBy} setSortBy={setSortBy}
         />}
         {page === "analysis" && <RiskAnalysisPage t={t} rows={rows} metrics={data?.metrics} onSelectOrder={openOrder} />}
-        {page === "schedule" && <DeliveryPlanPage t={t} rows={rows} onSelectOrder={openOrder} />}
+        {page === "schedule" && <DeliveryPlanPage t={t} rows={rows} onSelectOrder={openOrder} busy={busy} language={language} run={run} api={api} />}
         <footer>{t.footer}</footer>
       </main>
     </div>

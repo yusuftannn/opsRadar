@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const pct = (value) => `${Math.round(value * 100)}%`;
 
-export default function DeliveryPlanPage({ t, rows, onSelectOrder }) {
+export default function DeliveryPlanPage({ t, rows, onSelectOrder, busy, language, run, api }) {
+  const [plan, setPlan] = useState(null);
+  useEffect(() => setPlan(null), [rows, language]);
   const high = rows.filter((order) => order.level === "Yüksek").length;
   const averageRisk = rows.length ? rows.reduce((total, order) => total + order.risk, 0) / rows.length : 0;
   const schedule = Object.values(rows.reduce((dates, order) => {
@@ -22,6 +24,13 @@ export default function DeliveryPlanPage({ t, rows, onSelectOrder }) {
       <article><small>{t.highRisk}</small><strong className="orange">{high}</strong><span>{t.highHint}</span></article>
       <article><small>{t.deliveryDates}</small><strong>{schedule.length}</strong><span>{t.uniqueDeliveryDates}</span></article>
       <article><small>{t.averageRisk}</small><strong>{pct(averageRisk)}</strong><span>{t.averageHint}</span></article>
+    </section>
+    <section className="panel ai-brief">
+      <div className="panel-head">
+        <div><h2>{t.schedulePlan}</h2><p>{t.schedulePlanHint}</p></div>
+        <button disabled={busy || !rows.length} onClick={() => run(async () => setPlan(await api(`/schedule-plan?lang=${language}`, { method: "POST" }, language)))}>{t.generateSchedulePlan}</button>
+      </div>
+      {plan && <div className="explanation"><small>{plan.source === "ollama" ? t.scheduleOllama : t.scheduleFallback}</small><p>{plan.text}</p></div>}
     </section>
     <section className="panel schedule-panel">
       <div className="panel-head"><div><h2>{t.deliveryLoad}</h2><p>{t.deliveryLoadHint}</p></div><span className="pill">{schedule.length} {t.deliveryDates.toLowerCase()}</span></div>
