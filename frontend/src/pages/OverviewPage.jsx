@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { signalKeys } from "../i18n.js";
 
 const pct = (value) => `${Math.round(value * 100)}%`;
@@ -8,6 +8,7 @@ export default function OverviewPage({
   setSelected, explanation, setExplanation, run, api, upload, query,
   setQuery, dateFrom, setDateFrom, dateTo, setDateTo, sortBy, setSortBy,
 }) {
+  const [brief, setBrief] = useState(null);
   const levels = [
     { key: "high", value: "Yüksek", className: "high" },
     { key: "medium", value: "Orta", className: "medium" },
@@ -50,6 +51,13 @@ export default function OverviewPage({
       <article><small>{t.highRisk}</small><strong className="orange">{high}</strong><span>{t.highHint}</span></article>
       <article><small>{t.averageRisk}</small><strong>{pct(averageRisk)}</strong><span>{t.averageHint}</span></article>
       <article><small>{t.rocAuc}</small><strong>{data ? data.metrics.roc_auc.toFixed(2) : "—"}</strong><span>{t.rocHint}</span></article>
+    </section>
+    <section className="panel ai-brief">
+      <div className="panel-head">
+        <div><h2>{t.aiBrief}</h2><p>{t.aiBriefHint}</p></div>
+        <button disabled={busy || !rows.length} onClick={() => run(async () => setBrief(await api(`/brief?lang=${language}`, { method: "POST" }, language)))}>{t.generateBrief}</button>
+      </div>
+      {brief && <div className="explanation"><small>{brief.source === "ollama" ? t.briefOllama : t.briefFallback}</small><p>{brief.text}</p></div>}
     </section>
     <section className="insights">
       <div className="panel distribution">

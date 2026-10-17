@@ -13,6 +13,7 @@ def test_dashboard_and_demo():
 def test_upload_and_training():
     assert client.post('/api/train',files={'file':('data.csv',demo_data().to_csv(index=False),'text/csv')}).status_code==200
     assert client.get('/api/dashboard').json()['orders']==[]
+    assert client.post('/api/brief').json()['source']=='fallback'
     result=client.post('/api/orders',files={'file':('orders.csv',demo_data(10).drop(columns='delayed').to_csv(index=False),'text/csv')})
     assert result.json()['count']==10
     assert client.post('/api/explain/missing').status_code==404
@@ -34,3 +35,13 @@ def test_ollama_fallback(monkeypatch):
     english=client.post('/api/explain/'+order['order_id'],params={'lang':'en'}).json()
     assert english['source']=='fallback'
     assert 'Ollama is unavailable' in english['text']
+def test_portfolio_brief_fallback(monkeypatch):
+    monkeypatch.setenv('OLLAMA_URL','http://127.0.0.1:1')
+    client.post('/api/demo')
+    turkish=client.post('/api/brief').json()
+    english=client.post('/api/brief',params={'lang':'en'}).json()
+    assert turkish['source']=='fallback'
+    assert '40 açık siparişin' in turkish['text']
+    assert english['source']=='fallback'
+    assert '40 open orders' in english['text']
+    assert 'Tedarikçi' not in english['text']

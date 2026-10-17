@@ -8,7 +8,7 @@ Yerel bir operasyon kontrol paneli. Siparişlerin gecikme riskini tahmin eder, r
 - Tarih bazlı ayrılmış veri ile Random Forest modeli eğitir
 - Open CSV formatı ile eğitim ve sipariş yükleme desteği sunar
 - React tabanlı kontrol panelinde risk filtresi ve arama bulunur
-- Ollama erişilebildiğinde sipariş için metin açıklama üretir; erişilemezse güvenli bir fallback metin gösterir
+- Ollama erişilebildiğinde sipariş açıklaması ve portföy operasyon özeti üretir; erişilemezse açıkça etiketlenen bir fallback gösterir
 - Yerel geliştirme MVP'si olarak tasarlanmıştır; canlı üretim verisi için ek doğrulama gerekir
 
 ## Teknoloji yığını
@@ -78,7 +78,7 @@ ollama pull qwen2.5:3b
 2. Risk filtresi ve sipariş araması ile riskli siparişleri inceleyin.
 3. "Eğitim CSV'si yükle" ile yeni bir eğitim seti yükleyin.
 4. "Sipariş CSV'si yükle" ile açık siparişleri tahmin ettirin.
-5. Sipariş seçip detay görünümünde sinyalleri ve açıklamaları kontrol edin.
+5. Genel bakıştan portföy özeti üretin veya sipariş seçip detay görünümünde sinyalleri ve AI açıklamasını kontrol edin.
 6. "Demo verisini yenile" butonuyla sentetik veri ve modeli sıfırlayın.
 
 ## CSV sözleşmesi

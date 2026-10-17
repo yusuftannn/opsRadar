@@ -304,6 +304,13 @@ header button {
   justify-content: space-between;
   align-items: start;
 }
+.ai-brief {
+  margin-bottom: 22px;
+}
+.ai-brief .panel-head {
+  align-items: center;
+  gap: 14px;
+}
 .pill {
   background: #eef5f0;
   border-radius: 20px;
