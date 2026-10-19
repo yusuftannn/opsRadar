@@ -616,6 +616,17 @@ footer {
 .schedule-table-wrap th {
   position: static;
 }
+.schedule-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.schedule-pagination span {
+  color: #6d807d;
+  font-size: 12px;
+}
 .schedule-orders {
   display: flex;
   align-items: center;
@@ -628,6 +639,41 @@ footer {
 .schedule-orders > span {
   color: #6d807d;
   font-size: 11px;
+}
+.trend-panel,
+.trend-table-panel {
+  margin-bottom: 22px;
+}
+.trend-chart-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 12px;
+}
+.trend-chart {
+  display: block;
+  width: 100%;
+  min-width: 520px;
+  overflow: visible;
+}
+.trend-gridline {
+  stroke: #e8efeb;
+  stroke-width: 1;
+}
+.trend-axis-label {
+  fill: #81918b;
+  font-size: 11px;
+}
+.trend-line {
+  fill: none;
+  stroke: #4d9577;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+.trend-point {
+  fill: white;
+  stroke: #4d9577;
+  stroke-width: 3;
 }
 @media (max-width: 1100px) {
   aside {

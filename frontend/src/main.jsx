@@ -5,6 +5,7 @@ import { messages } from "./i18n.js";
 import OverviewPage from "./pages/OverviewPage.jsx";
 import RiskAnalysisPage from "./pages/RiskAnalysisPage.jsx";
 import DeliveryPlanPage from "./pages/DeliveryPlanPage.jsx";
+import TrendsPage from "./pages/TrendsPage.jsx";
 
 async function api(path, options, language) {
   const response = await fetch("/api" + path, options);
@@ -91,6 +92,7 @@ function App() {
     overview: [t.eyebrow, t.title, t.subtitle],
     analysis: [t.analysisEyebrow, t.analysisTitle, t.analysisSubtitle],
     schedule: [t.scheduleEyebrow, t.scheduleTitle, t.scheduleSubtitle],
+    trends: [t.trendsEyebrow, t.trendsTitle, t.trendsSubtitle],
   }[page];
 
   function navigate(nextPage) {
@@ -117,6 +119,7 @@ function App() {
         <button className={`nav ${page === "overview" ? "active" : ""}`} onClick={() => navigate("overview")}>◫ {t.overview}</button>
         <button className={`nav ${page === "analysis" ? "active" : ""}`} onClick={() => navigate("analysis")}>↗ {t.risks}</button>
         <button className={`nav ${page === "schedule" ? "active" : ""}`} onClick={() => navigate("schedule")}>▦ {t.deliveryPlan}</button>
+        <button className={`nav ${page === "trends" ? "active" : ""}`} onClick={() => navigate("trends")}>⌁ {t.trends}</button>
         <div className="aside-note">{t.local}<br /><strong>React + Python + Ollama</strong></div>
       </aside>
       <main>
@@ -141,6 +144,7 @@ function App() {
           <button className={page === "overview" ? "selected" : ""} onClick={() => navigate("overview")}>{t.overview}</button>
           <button className={page === "analysis" ? "selected" : ""} onClick={() => navigate("analysis")}>{t.risks}</button>
           <button className={page === "schedule" ? "selected" : ""} onClick={() => navigate("schedule")}>{t.deliveryPlan}</button>
+          <button className={page === "trends" ? "selected" : ""} onClick={() => navigate("trends")}>{t.trends}</button>
         </nav>
         {error && <div role="alert" className="error">{error}</div>}
         {busy && <div role="status" className="notice">{t.busy}</div>}
@@ -157,6 +161,7 @@ function App() {
         />}
         {page === "analysis" && <RiskAnalysisPage t={t} rows={rows} metrics={data?.metrics} onSelectOrder={openOrder} />}
         {page === "schedule" && <DeliveryPlanPage t={t} rows={rows} onSelectOrder={openOrder} busy={busy} language={language} run={run} api={api} />}
+        {page === "trends" && <TrendsPage t={t} rows={rows} />}
         <footer>{t.footer}</footer>
       </main>
     </div>
