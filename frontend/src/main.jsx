@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./style.css";
+import "./styles/app.css";
 import { messages } from "./i18n.js";
 import OverviewPage from "./pages/OverviewPage.jsx";
 import RiskAnalysisPage from "./pages/RiskAnalysisPage.jsx";
@@ -25,6 +25,7 @@ function App() {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [page, setPage] = useState("overview"),
+    [menuOpen, setMenuOpen] = useState(false),
     [filter, setFilter] = useState("all"),
     [query, setQuery] = useState(""),
     [dateFrom, setDateFrom] = useState(""),
@@ -38,6 +39,15 @@ function App() {
     localStorage.setItem("operasyon-radar-language", language);
     document.documentElement.lang = language;
   }, [language]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    function closeOnEscape(event) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [menuOpen]);
 
   async function refresh() {
     const nextData = await api("/dashboard", undefined, language);
@@ -97,6 +107,7 @@ function App() {
 
   function navigate(nextPage) {
     setPage(nextPage);
+    setMenuOpen(false);
     setSelected(null);
     setExplanation(null);
   }
@@ -109,25 +120,39 @@ function App() {
 
   return (
     <div className="shell">
-      <aside>
+      <aside id="page-sidebar" className={menuOpen ? "sidebar sidebar-open" : "sidebar"} aria-label={t.pageNavigation}>
         <div className="brand"><span className="logo">◎</span> operasyon<span>radar</span></div>
         <div className="language-switch" role="group" aria-label={language === "en" ? "Language" : "Dil"}>
           <button className={language === "tr" ? "selected" : ""} onClick={() => setLanguage("tr")} aria-pressed={language === "tr"}>TR</button>
           <button className={language === "en" ? "selected" : ""} onClick={() => setLanguage("en")} aria-pressed={language === "en"}>EN</button>
         </div>
         <div className="workspace">{t.workspace}</div>
-        <button className={`nav ${page === "overview" ? "active" : ""}`} onClick={() => navigate("overview")}>◫ {t.overview}</button>
-        <button className={`nav ${page === "analysis" ? "active" : ""}`} onClick={() => navigate("analysis")}>↗ {t.risks}</button>
-        <button className={`nav ${page === "schedule" ? "active" : ""}`} onClick={() => navigate("schedule")}>▦ {t.deliveryPlan}</button>
-        <button className={`nav ${page === "trends" ? "active" : ""}`} onClick={() => navigate("trends")}>⌁ {t.trends}</button>
+        <nav className="sidebar-nav" aria-label={t.pageNavigation}>
+          <button className={`nav ${page === "overview" ? "active" : ""}`} aria-current={page === "overview" ? "page" : undefined} onClick={() => navigate("overview")}>◫ {t.overview}</button>
+          <button className={`nav ${page === "analysis" ? "active" : ""}`} aria-current={page === "analysis" ? "page" : undefined} onClick={() => navigate("analysis")}>↗ {t.risks}</button>
+          <button className={`nav ${page === "schedule" ? "active" : ""}`} aria-current={page === "schedule" ? "page" : undefined} onClick={() => navigate("schedule")}>▦ {t.deliveryPlan}</button>
+          <button className={`nav ${page === "trends" ? "active" : ""}`} aria-current={page === "trends" ? "page" : undefined} onClick={() => navigate("trends")}>⌁ {t.trends}</button>
+        </nav>
         <div className="aside-note">{t.local}<br /><strong>React + Python + Ollama</strong></div>
       </aside>
+      {menuOpen && <button className="sidebar-backdrop" aria-label={t.closeMenu} onClick={() => setMenuOpen(false)} />}
       <main>
         <header>
-          <div>
-            <small>{pageTitles[0]}</small>
-            <h1>{pageTitles[1]}</h1>
-            <p>{pageTitles[2]}</p>
+          <div className="page-heading">
+            <button
+              className="mobile-menu-toggle"
+              aria-label={menuOpen ? t.closeMenu : t.openMenu}
+              aria-expanded={menuOpen}
+              aria-controls="page-sidebar"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <span className="menu-icon" aria-hidden="true"><span /><span /><span /></span>
+            </button>
+            <div>
+              <small>{pageTitles[0]}</small>
+              <h1>{pageTitles[1]}</h1>
+              <p>{pageTitles[2]}</p>
+            </div>
           </div>
           <div className="header-actions">
             <div className="language-switch mobile-language" role="group" aria-label={language === "en" ? "Language" : "Dil"}>
@@ -140,12 +165,6 @@ function App() {
             })}>{t.refreshDemo}</button>
           </div>
         </header>
-        <nav className="mobile-nav" aria-label={t.pageNavigation}>
-          <button className={page === "overview" ? "selected" : ""} onClick={() => navigate("overview")}>{t.overview}</button>
-          <button className={page === "analysis" ? "selected" : ""} onClick={() => navigate("analysis")}>{t.risks}</button>
-          <button className={page === "schedule" ? "selected" : ""} onClick={() => navigate("schedule")}>{t.deliveryPlan}</button>
-          <button className={page === "trends" ? "selected" : ""} onClick={() => navigate("trends")}>{t.trends}</button>
-        </nav>
         {error && <div role="alert" className="error">{error}</div>}
         {busy && <div role="status" className="notice">{t.busy}</div>}
         <div className="notice">

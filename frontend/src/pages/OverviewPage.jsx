@@ -104,16 +104,16 @@ export default function OverviewPage({
           <span className="pill">{shown.length} {t.orderCount}</span>
         </div>
         <div className="filters">
-          <input aria-label={t.search} placeholder={t.searchPlaceholder} value={query} onChange={(event) => setQuery(event.target.value)} />
-          <select aria-label={t.riskFilter} value={filter} onChange={(event) => setFilter(event.target.value)}>
+          <label className="filter-field search-filter"><span>{t.search}</span><input aria-label={t.search} placeholder={t.searchPlaceholder} value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+          <label className="filter-field risk-filter"><span>{t.riskFilter}</span><select aria-label={t.riskFilter} value={filter} onChange={(event) => setFilter(event.target.value)}>
             {["all", "high", "medium", "low"].map((value) => <option key={value} value={value}>{t[value]}</option>)}
-          </select>
-          <label className="date-filter"><span>{t.dateFrom}</span><input aria-label={t.dateFrom} type="date" value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /></label>
-          <label className="date-filter"><span>{t.dateTo}</span><input aria-label={t.dateTo} type="date" value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /></label>
-          <select aria-label={t.sortOrders} value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+          </select></label>
+          <label className="filter-field date-filter date-from"><span>{t.dateFrom}</span><input aria-label={t.dateFrom} type="date" value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /></label>
+          <label className="filter-field date-filter date-to"><span>{t.dateTo}</span><input aria-label={t.dateTo} type="date" value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /></label>
+          <label className="filter-field sort-filter"><span>{t.sortOrders}</span><select aria-label={t.sortOrders} value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
             <option value="risk">{t.sortRisk}</option><option value="date-newest">{t.sortNewest}</option><option value="date-oldest">{t.sortOldest}</option><option value="order-id">{t.sortOrderId}</option>
-          </select>
-          <button className="export" disabled={!shown.length} onClick={exportRows}>{t.exportCsv}</button>
+          </select></label>
+          <button className="export filter-export" disabled={!shown.length} onClick={exportRows}>{t.exportCsv}</button>
         </div>
         <div className="table-wrap">
           <table>
