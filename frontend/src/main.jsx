@@ -6,6 +6,7 @@ import OverviewPage from "./pages/OverviewPage.jsx";
 import RiskAnalysisPage from "./pages/RiskAnalysisPage.jsx";
 import DeliveryPlanPage from "./pages/DeliveryPlanPage.jsx";
 import TrendsPage from "./pages/TrendsPage.jsx";
+import SegmentsPage from "./pages/SegmentsPage.jsx";
 
 async function api(path, options, language) {
   const response = await fetch("/api" + path, options);
@@ -103,6 +104,7 @@ function App() {
     analysis: [t.analysisEyebrow, t.analysisTitle, t.analysisSubtitle],
     schedule: [t.scheduleEyebrow, t.scheduleTitle, t.scheduleSubtitle],
     trends: [t.trendsEyebrow, t.trendsTitle, t.trendsSubtitle],
+    segments: [t.segmentsEyebrow, t.segmentsTitle, t.segmentsSubtitle],
   }[page];
 
   function navigate(nextPage) {
@@ -132,6 +134,7 @@ function App() {
           <button className={`nav ${page === "analysis" ? "active" : ""}`} aria-current={page === "analysis" ? "page" : undefined} onClick={() => navigate("analysis")}>↗ {t.risks}</button>
           <button className={`nav ${page === "schedule" ? "active" : ""}`} aria-current={page === "schedule" ? "page" : undefined} onClick={() => navigate("schedule")}>▦ {t.deliveryPlan}</button>
           <button className={`nav ${page === "trends" ? "active" : ""}`} aria-current={page === "trends" ? "page" : undefined} onClick={() => navigate("trends")}>⌁ {t.trends}</button>
+          <button className={`nav ${page === "segments" ? "active" : ""}`} aria-current={page === "segments" ? "page" : undefined} onClick={() => navigate("segments")}>▤ {t.segments}</button>
         </nav>
         <div className="aside-note">{t.local}<br /><strong>React + Python + Ollama</strong></div>
       </aside>
@@ -181,6 +184,7 @@ function App() {
         {page === "analysis" && <RiskAnalysisPage t={t} rows={rows} metrics={data?.metrics} onSelectOrder={openOrder} />}
         {page === "schedule" && <DeliveryPlanPage t={t} rows={rows} onSelectOrder={openOrder} busy={busy} language={language} run={run} api={api} />}
         {page === "trends" && <TrendsPage t={t} rows={rows} />}
+        {page === "segments" && <SegmentsPage t={t} rows={rows} onSelectOrder={openOrder} />}
         <footer>{t.footer}</footer>
       </main>
     </div>

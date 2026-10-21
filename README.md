@@ -8,6 +8,7 @@ Yerel bir operasyon kontrol paneli. Siparişlerin gecikme riskini tahmin eder, r
 - Tarih bazlı ayrılmış veri ile Random Forest modeli eğitir
 - Open CSV formatı ile eğitim ve sipariş yükleme desteği sunar
 - React tabanlı kontrol panelinde risk filtresi ve arama bulunur
+- Tedarikçi gecikme geçmişi, iş yükü ve mesafe aralıklarında risk skorlarını karşılaştırır
 - Ollama erişilebildiğinde sipariş açıklaması ve portföy operasyon özeti üretir; erişilemezse açıkça etiketlenen bir fallback gösterir
 - Yerel geliştirme MVP'si olarak tasarlanmıştır; canlı üretim verisi için ek doğrulama gerekir
 

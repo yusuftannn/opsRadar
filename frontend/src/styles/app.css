@@ -658,6 +658,75 @@ footer {
   margin: 22px 0 0;
   font-size: 11px;
 }
+.segments-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 18px;
+}
+.segment-cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.segment-panel {
+  min-width: 0;
+}
+.segment-list {
+  display: grid;
+  gap: 12px;
+}
+.segment-item {
+  display: grid;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid #edf2ee;
+  border-radius: 9px;
+}
+.segment-heading,
+.segment-stat,
+.segment-average {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+.segment-heading strong {
+  color: #29453b;
+  font-size: 12px;
+}
+.segment-heading span,
+.segment-stat span,
+.segment-average > span:first-child {
+  color: #6d807d;
+}
+.segment-stat b,
+.segment-average strong {
+  font-size: 12px;
+  color: #29453b;
+}
+.segment-average {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+.segment-track {
+  grid-column: 1 / -1;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #edf2ee;
+}
+.segment-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #4d9577;
+}
+.segment-priority {
+  width: 100%;
+  padding: 8px 9px;
+  font-size: 10px;
+  text-align: left;
+}
 .priority-list {
   gap: 7px;
 }
@@ -782,6 +851,9 @@ footer {
   }
   .analysis-grid {
     grid-template-columns: 1fr;
+  }
+  .segments-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .training {
     flex-direction: column;
@@ -944,6 +1016,9 @@ footer {
   .analysis-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
+  }
+  .segments-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .training {
     padding: 16px;
