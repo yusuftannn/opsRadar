@@ -6,6 +6,78 @@
   "trends": "Risk trends",
   "segments": "Operational segments",
   "pageNavigation": "Page navigation",
+  "corporateNavigation": "Corporate pages",
+  "corporate": "Company",
+  "corporateEyebrow": "Company",
+  "corporateTitle": "Company",
+  "corporateSubtitle": "Find company information, contact details, and legal information here.",
+  "corporateGroups": [
+    {
+      "title": "Company",
+      "description": "Learn about Operations Radar and our approach.",
+      "items": [
+        { "page": "about", "title": "About us", "description": "The purpose and approach behind Operations Radar.", "icon": "◎" }
+      ]
+    },
+    {
+      "title": "Help and Support",
+      "description": "Find answers or get in touch with us.",
+      "items": [
+        { "page": "contact", "title": "Contact", "description": "View our contact channels.", "icon": "?" }
+      ]
+    },
+    {
+      "title": "Legal",
+      "description": "Information about privacy and use.",
+      "items": [
+        { "page": "privacy", "title": "Privacy policy", "description": "Review how the application handles data.", "icon": "◈" },
+        { "page": "terms", "title": "Terms of use", "description": "Read the application terms of use.", "icon": "≡" }
+      ]
+    }
+  ],
+  "backToCorporate": "Back to Company",
+  "about": "About us",
+  "contact": "Contact",
+  "privacy": "Privacy policy",
+  "terms": "Terms of use",
+  "aboutEyebrow": "COMPANY / ABOUT",
+  "aboutTitle": "Making operations more predictable.",
+  "aboutSubtitle": "The purpose and approach behind Operations Radar.",
+  "aboutIntro": "Operations Radar is a local operations dashboard that helps make order-delay risks visible. It analyzes order data, helps teams identify priorities, and supports earlier action. The project is currently a development MVP.",
+  "aboutPrinciples": [
+    { "title": "See what needs attention", "text": "Risk scores and operational signals help you spot orders that may need review." },
+    { "title": "Make data easier to explore", "text": "Trend and segment views help you examine the current order pool from different angles." },
+    { "title": "Keep decisions with your team", "text": "Predictions provide decision support; they are not guaranteed to be calibrated and do not replace operational judgment." }
+  ],
+  "contactEyebrow": "COMPANY / CONTACT",
+  "contactTitle": "Get in touch.",
+  "contactSubtitle": "Channels for questions, feedback, and collaboration.",
+  "contactIntro": "For questions, feedback, or collaboration ideas about Operations Radar, you can reach out through the channels below.",
+  "contactWaysTitle": "Contact channels",
+  "contactWaysDescription": "Choose the channel that works best for your message.",
+  "contactWebsite": "Website",
+  "contactLinkedIn": "LinkedIn",
+  "contactEmail": "Email",
+  "privacyEyebrow": "COMPANY / PRIVACY",
+  "privacyTitle": "Privacy policy.",
+  "privacySubtitle": "How this application handles data.",
+  "privacyIntro": "Operations Radar is designed as a local development MVP. This page summarizes the current application behavior and should be reviewed if its deployment or infrastructure changes.",
+  "privacySections": [
+    { "title": "Data uploaded to the application", "text": "CSV files are sent to the running application server for analysis. According to the project documentation, uploaded CSV data is not saved to disk. Before using real or sensitive data, verify the data flow and retention settings of your own environment." },
+    { "title": "Preference stored in your browser", "text": "Your language preference is stored in the browser's local storage and is used to remember the interface language." },
+    { "title": "Third-party services", "text": "When Ollama is enabled and used, relevant operational data may be sent to the configured local Ollama service to generate an AI summary. The deployment and retention terms of that service apply." },
+    { "title": "Using the application safely", "text": "This release may require additional security, access-control, and compliance review before production use. Assess your deployment before uploading personal or confidential data." }
+  ],
+  "termsEyebrow": "COMPANY / TERMS OF USE",
+  "termsTitle": "Terms of use.",
+  "termsSubtitle": "What to keep in mind when using Operations Radar.",
+  "termsIntro": "Operations Radar is a development MVP for operational analysis. Please keep the following limitations and responsibilities in mind when using it.",
+  "termsSections": [
+    { "title": "Information and predictions", "text": "Risk scores are model predictions, not certain outcomes, guarantees, or causal explanations for individual orders. Do not make important decisions based solely on these scores." },
+    { "title": "Data and your responsibilities", "text": "Make sure you are authorized to use the data you upload and that it meets applicable security and privacy requirements. Review the necessary controls before using this MVP with sensitive or production data." },
+    { "title": "Development release", "text": "The application is provided for development and evaluation; uninterrupted operation or any particular outcome is not promised. AI feature availability depends on a local Ollama installation." },
+    { "title": "Scope of these terms", "text": "This page describes the current development release and is not legal advice. Review the terms and applicable regulatory requirements before deploying the application or using it in an organization." }
+  ],
   "openMenu": "Open menu",
   "closeMenu": "Close menu",
   "local": "Local development build",

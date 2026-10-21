@@ -6,6 +6,78 @@
   "trends": "Risk trendleri",
   "segments": "Operasyonel segmentler",
   "pageNavigation": "Sayfa gezinme",
+  "corporateNavigation": "Kurumsal sayfalar",
+  "corporate": "Kurumsal",
+  "corporateEyebrow": "KURUMSAL",
+  "corporateTitle": "Kurumsal",
+  "corporateSubtitle": "Hakkımızda, iletişim ve yasal bilgilere buradan ulaşabilirsiniz.",
+  "corporateGroups": [
+    {
+      "title": "Şirket",
+      "description": "Operasyon Radar'ı ve yaklaşımımızı tanıyın.",
+      "items": [
+        { "page": "about", "title": "Hakkımızda", "description": "Operasyon Radar'ın amacı ve yaklaşımı.", "icon": "◎" }
+      ]
+    },
+    {
+      "title": "Yardım ve Destek",
+      "description": "Sorularınızı iletin veya bizimle iletişime geçin.",
+      "items": [
+        { "page": "contact", "title": "İletişim", "description": "İletişim kanallarımıza göz atın.", "icon": "?" }
+      ]
+    },
+    {
+      "title": "Yasal",
+      "description": "Gizlilik ve kullanım hakkında bilgiler.",
+      "items": [
+        { "page": "privacy", "title": "Gizlilik Politikası", "description": "Veri işleme yaklaşımımızı inceleyin.", "icon": "◈" },
+        { "page": "terms", "title": "Kullanım Koşulları", "description": "Uygulama kullanım koşullarını okuyun.", "icon": "≡" }
+      ]
+    }
+  ],
+  "backToCorporate": "Kurumsal sayfasına dön",
+  "about": "Hakkımızda",
+  "contact": "İletişim",
+  "privacy": "Gizlilik politikası",
+  "terms": "Kullanım koşulları",
+  "aboutEyebrow": "KURUMSAL / HAKKIMIZDA",
+  "aboutTitle": "Operasyonları daha öngörülebilir kılmak.",
+  "aboutSubtitle": "Operasyon Radar'ın amacı ve yaklaşımı.",
+  "aboutIntro": "Operasyon Radar, sipariş gecikme risklerini görünür kılmaya yardımcı olan yerel bir operasyon kontrol panelidir. Sipariş verilerini analiz eder, öncelikleri belirlemeyi kolaylaştırır ve ekiplerin daha erken aksiyon almasını destekler. Proje şu anda bir geliştirme MVP'sidir.",
+  "aboutPrinciples": [
+    { "title": "Öncelikleri görün", "text": "Risk skorları ve operasyonel sinyaller, incelenmesi gereken siparişleri daha kolay fark etmenize yardımcı olur." },
+    { "title": "Veriyi anlaşılır kılın", "text": "Trend ve segment görünümleri, mevcut sipariş havuzunu farklı açılardan değerlendirmek için tasarlanmıştır." },
+    { "title": "Kararı siz verin", "text": "Tahminler karar desteği sağlar; kalibrasyon garantisi taşımaz ve operasyonel değerlendirmenin yerini almaz." }
+  ],
+  "contactEyebrow": "KURUMSAL / İLETİŞİM",
+  "contactTitle": "Bize ulaşın.",
+  "contactSubtitle": "Sorular, geri bildirimler ve iş birliği için iletişim kanalları.",
+  "contactIntro": "Operasyon Radar hakkında sorularınız, geri bildirimleriniz veya iş birliği önerileriniz için aşağıdaki kanallardan ulaşabilirsiniz.",
+  "contactWaysTitle": "İletişim kanalları",
+  "contactWaysDescription": "Size uygun kanalı seçerek mesajınızı iletebilirsiniz.",
+  "contactWebsite": "Web sitesi",
+  "contactLinkedIn": "LinkedIn",
+  "contactEmail": "E-posta",
+  "privacyEyebrow": "KURUMSAL / GİZLİLİK",
+  "privacyTitle": "Gizlilik politikası.",
+  "privacySubtitle": "Uygulamanın veri işleme yaklaşımı.",
+  "privacyIntro": "Operasyon Radar yerel geliştirme MVP'si olarak tasarlanmıştır. Bu açıklama mevcut uygulama davranışını özetler; dağıtım ve altyapı değiştikçe yeniden gözden geçirilmelidir.",
+  "privacySections": [
+    { "title": "Uygulamaya yüklenen veriler", "text": "CSV dosyaları analiz için çalışan uygulama sunucusuna gönderilir. Proje dokümantasyonuna göre yüklenen CSV verileri diske kaydedilmez. Uygulamayı gerçek veya hassas verilerle kullanmadan önce kendi ortamınızın veri akışını ve saklama ayarlarını doğrulayın." },
+    { "title": "Tarayıcıda saklanan ayar", "text": "Dil tercihi tarayıcının yerel depolama alanında tutulur. Uygulama bu tercihi arayüz dilini hatırlamak için kullanır." },
+    { "title": "Üçüncü taraf hizmetler", "text": "Ollama etkinleştirilip kullanıldığında, yapay zekâ özeti için ilgili operasyon verileri yapılandırılmış yerel Ollama hizmetine gönderilebilir. Bu hizmetin kendi dağıtım ve saklama koşulları geçerlidir." },
+    { "title": "Güvenli kullanım", "text": "Bu sürüm üretim kullanımı için ek güvenlik, erişim kontrolü ve mevzuat değerlendirmesi gerektirebilir. Kişisel veya gizli verileri yüklemeden önce dağıtımınızı değerlendirin." }
+  ],
+  "termsEyebrow": "KURUMSAL / KULLANIM KOŞULLARI",
+  "termsTitle": "Kullanım koşulları.",
+  "termsSubtitle": "Operasyon Radar'ı kullanırken dikkate alınması gerekenler.",
+  "termsIntro": "Operasyon Radar, operasyonel analiz için sunulan bir geliştirme MVP'sidir. Uygulamayı kullanırken aşağıdaki sınırları ve sorumlulukları dikkate alın.",
+  "termsSections": [
+    { "title": "Bilgilendirme ve tahminler", "text": "Risk skorları model tahminleridir; kesin sonuç, garanti veya bireysel siparişler için nedensel açıklama değildir. Önemli kararları yalnızca bu skorlara dayanarak vermeyin." },
+    { "title": "Veri ve kullanım sorumluluğu", "text": "Yüklediğiniz verileri kullanma yetkisine sahip olduğunuzdan ve verilerin geçerli güvenlik ve gizlilik gerekliliklerine uygun olduğundan emin olun. Bu MVP'yi hassas veya üretim verileriyle kullanmadan önce gerekli kontrolleri yapın." },
+    { "title": "Geliştirme sürümü", "text": "Uygulama geliştirme ve değerlendirme amacıyla sunulur; kesintisiz çalışma veya belirli bir sonucun elde edilmesi taahhüt edilmez. Yapay zekâ özelliklerinin kullanılabilirliği yerel Ollama kurulumuna bağlıdır." },
+    { "title": "Koşulların kapsamı", "text": "Bu sayfa ürünün mevcut geliştirme sürümünü açıklar ve hukuki danışmanlık yerine geçmez. Uygulamayı dağıtmadan veya kurumsal kullanıma almadan önce koşulları ve ilgili mevzuat gerekliliklerini gözden geçirin." }
+  ],
   "openMenu": "Menüyü aç",
   "closeMenu": "Menüyü kapat",
   "local": "Yerel geliştirme sürümü",

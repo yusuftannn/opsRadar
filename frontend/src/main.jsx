@@ -7,6 +7,7 @@ import RiskAnalysisPage from "./pages/RiskAnalysisPage.jsx";
 import DeliveryPlanPage from "./pages/DeliveryPlanPage.jsx";
 import TrendsPage from "./pages/TrendsPage.jsx";
 import SegmentsPage from "./pages/SegmentsPage.jsx";
+import CorporatePage from "./pages/CorporatePage.jsx";
 
 async function api(path, options, language) {
   const response = await fetch("/api" + path, options);
@@ -105,7 +106,13 @@ function App() {
     schedule: [t.scheduleEyebrow, t.scheduleTitle, t.scheduleSubtitle],
     trends: [t.trendsEyebrow, t.trendsTitle, t.trendsSubtitle],
     segments: [t.segmentsEyebrow, t.segmentsTitle, t.segmentsSubtitle],
+    corporate: [t.corporateEyebrow, t.corporateTitle, t.corporateSubtitle],
+    about: [t.aboutEyebrow, t.aboutTitle, t.aboutSubtitle],
+    contact: [t.contactEyebrow, t.contactTitle, t.contactSubtitle],
+    privacy: [t.privacyEyebrow, t.privacyTitle, t.privacySubtitle],
+    terms: [t.termsEyebrow, t.termsTitle, t.termsSubtitle],
   }[page];
+  const isCorporatePage = ["corporate", "about", "contact", "privacy", "terms"].includes(page);
 
   function navigate(nextPage) {
     setPage(nextPage);
@@ -136,6 +143,9 @@ function App() {
           <button className={`nav ${page === "trends" ? "active" : ""}`} aria-current={page === "trends" ? "page" : undefined} onClick={() => navigate("trends")}>⌁ {t.trends}</button>
           <button className={`nav ${page === "segments" ? "active" : ""}`} aria-current={page === "segments" ? "page" : undefined} onClick={() => navigate("segments")}>▤ {t.segments}</button>
         </nav>
+        <nav className="sidebar-nav" aria-label={t.corporateNavigation}>
+          <button className={`nav ${isCorporatePage ? "active" : ""}`} aria-current={isCorporatePage ? "page" : undefined} onClick={() => navigate("corporate")}>◎ {t.corporate}</button>
+        </nav>
         <div className="aside-note">{t.local}<br /><strong>React + Python + Ollama</strong></div>
       </aside>
       {menuOpen && <button className="sidebar-backdrop" aria-label={t.closeMenu} onClick={() => setMenuOpen(false)} />}
@@ -162,17 +172,17 @@ function App() {
               <button className={language === "tr" ? "selected" : ""} onClick={() => setLanguage("tr")} aria-pressed={language === "tr"}>TR</button>
               <button className={language === "en" ? "selected" : ""} onClick={() => setLanguage("en")} aria-pressed={language === "en"}>EN</button>
             </div>
-            <button disabled={busy} onClick={() => run(async () => {
+            {!isCorporatePage && <button disabled={busy} onClick={() => run(async () => {
               await api("/demo", { method: "POST" }, language);
               await refresh();
-            })}>{t.refreshDemo}</button>
+            })}>{t.refreshDemo}</button>}
           </div>
         </header>
         {error && <div role="alert" className="error">{error}</div>}
         {busy && <div role="status" className="notice">{t.busy}</div>}
-        <div className="notice">
+        {!isCorporatePage && <div className="notice">
           {data?.metrics.source === "sentetik demo" ? t.syntheticNotice : t.csvNotice} {t.calibration}
-        </div>
+        </div>}
         {page === "overview" && <OverviewPage
           t={t} rows={rows} shown={shown} filter={filter} setFilter={setFilter}
           data={data} busy={busy} language={language} selected={selected}
@@ -185,6 +195,7 @@ function App() {
         {page === "schedule" && <DeliveryPlanPage t={t} rows={rows} onSelectOrder={openOrder} busy={busy} language={language} run={run} api={api} />}
         {page === "trends" && <TrendsPage t={t} rows={rows} />}
         {page === "segments" && <SegmentsPage t={t} rows={rows} onSelectOrder={openOrder} />}
+        {isCorporatePage && <CorporatePage page={page} t={t} onNavigate={navigate} />}
         <footer>{t.footer}</footer>
       </main>
     </div>
