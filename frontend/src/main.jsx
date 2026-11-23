@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles/app.css";
 import { messages } from "./i18n.js";
@@ -8,6 +8,20 @@ import DeliveryPlanPage from "./pages/DeliveryPlanPage.jsx";
 import TrendsPage from "./pages/TrendsPage.jsx";
 import SegmentsPage from "./pages/SegmentsPage.jsx";
 import CorporatePage from "./pages/CorporatePage.jsx";
+import WatchlistPage from "./pages/WatchlistPage.jsx";
+
+const watchlistStorageKey = "operasyon-radar-watchlist";
+const orderKey = (order) => JSON.stringify([order.order_id, order.order_date]);
+const emptyOrders = [];
+
+function readWatchlist() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(watchlistStorageKey));
+    return new Set(Array.isArray(saved) ? saved : []);
+  } catch {
+    return new Set();
+  }
+}
 
 async function api(path, options, language) {
   const response = await fetch("/api" + path, options);
@@ -35,7 +49,26 @@ function App() {
     [sortBy, setSortBy] = useState("risk"),
     [selected, setSelected] = useState(null),
     [explanation, setExplanation] = useState(null);
+  const [watchlist, setWatchlist] = useState(readWatchlist);
   const t = messages[language];
+
+  useEffect(() => {
+    localStorage.setItem(watchlistStorageKey, JSON.stringify([...watchlist]));
+  }, [watchlist]);
+
+  function isWatched(order) {
+    return watchlist.has(orderKey(order));
+  }
+
+  function toggleWatch(order) {
+    const key = orderKey(order);
+    setWatchlist((previous) => {
+      const next = new Set(previous);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
 
   useEffect(() => {
     localStorage.setItem("operasyon-radar-language", language);
@@ -86,26 +119,27 @@ function App() {
     });
   }
 
-  const rows = data?.orders || [];
-  const filtered = rows.filter(
+  const rows = data?.orders || emptyOrders;
+  const watchedRows = page === "watchlist" && watchlist.size ? rows.filter(isWatched) : emptyOrders;
+  const shown = useMemo(() => rows.filter(
     (order) =>
       (filter === "all" || order.level === ({ high: "Yüksek", medium: "Orta", low: "Düşük" }[filter])) &&
       (!dateFrom || order.order_date >= dateFrom) &&
       (!dateTo || order.order_date <= dateTo) &&
       order.order_id.toLowerCase().includes(query.toLowerCase()),
-  );
-  const shown = [...filtered].sort((a, b) => {
+  ).sort((a, b) => {
     if (sortBy === "date-newest") return b.order_date.localeCompare(a.order_date);
     if (sortBy === "date-oldest") return a.order_date.localeCompare(b.order_date);
     if (sortBy === "order-id") return a.order_id.localeCompare(b.order_id);
     return b.risk - a.risk;
-  });
+  }), [rows, filter, dateFrom, dateTo, query, sortBy]);
   const pageTitles = {
     overview: [t.eyebrow, t.title, t.subtitle],
     analysis: [t.analysisEyebrow, t.analysisTitle, t.analysisSubtitle],
     schedule: [t.scheduleEyebrow, t.scheduleTitle, t.scheduleSubtitle],
     trends: [t.trendsEyebrow, t.trendsTitle, t.trendsSubtitle],
     segments: [t.segmentsEyebrow, t.segmentsTitle, t.segmentsSubtitle],
+    watchlist: [t.workspace, t.watchlist, t.watchlistSubtitle],
     corporate: [t.corporateEyebrow, t.corporateTitle, t.corporateSubtitle],
     about: [t.aboutEyebrow, t.aboutTitle, t.aboutSubtitle],
     contact: [t.contactEyebrow, t.contactTitle, t.contactSubtitle],
@@ -142,6 +176,7 @@ function App() {
           <button className={`nav ${page === "schedule" ? "active" : ""}`} aria-current={page === "schedule" ? "page" : undefined} onClick={() => navigate("schedule")}>▦ {t.deliveryPlan}</button>
           <button className={`nav ${page === "trends" ? "active" : ""}`} aria-current={page === "trends" ? "page" : undefined} onClick={() => navigate("trends")}>⌁ {t.trends}</button>
           <button className={`nav ${page === "segments" ? "active" : ""}`} aria-current={page === "segments" ? "page" : undefined} onClick={() => navigate("segments")}>▤ {t.segments}</button>
+          <button className={`nav ${page === "watchlist" ? "active" : ""}`} aria-current={page === "watchlist" ? "page" : undefined} onClick={() => navigate("watchlist")}>☆ {t.watchlist}</button>
         </nav>
         <nav className="sidebar-nav" aria-label={t.corporateNavigation}>
           <button className={`nav ${isCorporatePage ? "active" : ""}`} aria-current={isCorporatePage ? "page" : undefined} onClick={() => navigate("corporate")}>◎ {t.corporate}</button>
@@ -190,11 +225,13 @@ function App() {
           run={run} api={api} upload={upload} query={query} setQuery={setQuery}
           dateFrom={dateFrom} setDateFrom={setDateFrom} dateTo={dateTo} setDateTo={setDateTo}
           sortBy={sortBy} setSortBy={setSortBy}
+          isWatched={isWatched} onToggleWatch={toggleWatch}
         />}
         {page === "analysis" && <RiskAnalysisPage t={t} rows={rows} metrics={data?.metrics} onSelectOrder={openOrder} />}
         {page === "schedule" && <DeliveryPlanPage t={t} rows={rows} onSelectOrder={openOrder} busy={busy} language={language} run={run} api={api} />}
         {page === "trends" && <TrendsPage t={t} rows={rows} />}
         {page === "segments" && <SegmentsPage t={t} rows={rows} onSelectOrder={openOrder} />}
+        {page === "watchlist" && <WatchlistPage t={t} rows={watchedRows} onSelectOrder={openOrder} onRemove={toggleWatch} />}
         {isCorporatePage && <CorporatePage page={page} t={t} onNavigate={navigate} />}
         <footer>{t.footer}</footer>
       </main>

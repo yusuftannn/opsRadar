@@ -1,14 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { signalKeys } from "../i18n.js";
 
 const pct = (value) => `${Math.round(value * 100)}%`;
+const pageSize = 25;
 
 export default function OverviewPage({
   t, rows, shown, filter, setFilter, data, busy, language, selected,
   setSelected, explanation, setExplanation, run, api, upload, query,
   setQuery, dateFrom, setDateFrom, dateTo, setDateTo, sortBy, setSortBy,
+  isWatched, onToggleWatch,
 }) {
   const [brief, setBrief] = useState(null);
+  const [pagination, setPagination] = useState(null);
+  const tableRef = useRef(null);
+  const orderPage = pagination?.orders === shown ? pagination.page : 1;
+  const pageCount = Math.ceil(shown.length / pageSize);
+  const firstIndex = (orderPage - 1) * pageSize;
+  const visibleOrders = shown.slice(firstIndex, firstIndex + pageSize);
+
+  useEffect(() => {
+    if (tableRef.current) tableRef.current.scrollTop = 0;
+  }, [shown, orderPage]);
+
   const levels = [
     { key: "high", value: "Yüksek", className: "high" },
     { key: "medium", value: "Orta", className: "medium" },
@@ -115,10 +128,10 @@ export default function OverviewPage({
           </select></label>
           <button className="export filter-export" disabled={!shown.length} onClick={exportRows}>{t.exportCsv}</button>
         </div>
-        <div className="table-wrap">
+        <div className="table-wrap" ref={tableRef}>
           <table>
             <thead><tr><th>{t.order}</th><th>{t.distance}</th><th>{t.riskScore}</th><th>{t.level}</th><th /></tr></thead>
-            <tbody>{shown.map((order) => (
+            <tbody>{visibleOrders.map((order) => (
               <tr key={order.order_id}>
                 <td><b>{order.order_id}</b><small>{order.order_date}</small></td>
                 <td>{order.distance_km} km</td>
@@ -130,12 +143,20 @@ export default function OverviewPage({
           </table>
           {!shown.length && <p className="empty">{t.notFound}</p>}
         </div>
+        {pageCount > 1 && <nav className="schedule-pagination" aria-label={t.orderRadar}>
+          <button disabled={orderPage === 1} onClick={() => setPagination({ orders: shown, page: orderPage - 1 })}>{t.previousPage}</button>
+          <span aria-live="polite">{firstIndex + 1}–{firstIndex + visibleOrders.length} / {shown.length}</span>
+          <button disabled={orderPage === pageCount} onClick={() => setPagination({ orders: shown, page: orderPage + 1 })}>{t.nextPage}</button>
+        </nav>}
       </section>
       <section className="panel detail">
         <small className="accent">{t.insight}</small>
         <h2>{selected?.order_id || t.discover}</h2>
         {selected ? <>
           <div className="big-risk">{pct(selected.risk)}<span>{t.modelRisk}</span></div>
+          <button onClick={() => onToggleWatch(selected)}>
+            {isWatched(selected) ? t.unwatchOrder : t.watchOrder}
+          </button>
           <h3>{t.operationalData}</h3>
           <dl className="facts">
             <div><dt>{t.quantity}</dt><dd>{selected.quantity} {t.units}</dd></div>
