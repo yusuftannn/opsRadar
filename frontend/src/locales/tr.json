@@ -1,4 +1,11 @@
 {
+  "followUpStatus": "Takip durumu",
+  "followUpNote": "Operasyon notu",
+  "followUpPending": "Bekliyor",
+  "followUpInProgress": "İşlemde",
+  "followUpResolved": "Çözüldü",
+  "showAllOrders": "Tüm siparişleri göster",
+  "showFewerOrders": "Daha az göster",
   "workspace": "OPERASYON MERKEZİ",
   "overview": "Genel bakış",
   "risks": "Sipariş riskleri",

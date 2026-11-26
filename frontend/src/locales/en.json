@@ -1,4 +1,11 @@
 {
+  "followUpStatus": "Follow-up status",
+  "followUpNote": "Operations note",
+  "followUpPending": "Pending",
+  "followUpInProgress": "In progress",
+  "followUpResolved": "Resolved",
+  "showAllOrders": "Show all orders",
+  "showFewerOrders": "Show fewer",
   "workspace": "OPERATIONS CENTER",
   "overview": "Overview",
   "risks": "Order risks",

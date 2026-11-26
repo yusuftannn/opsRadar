@@ -940,6 +940,7 @@ footer {
 }
 .schedule-orders {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 5px;
 }
@@ -947,10 +948,21 @@ footer {
   padding: 5px 7px;
   font-size: 10px;
 }
-.schedule-orders > span {
-  color: #6d807d;
-  font-size: 11px;
+.schedule-expand {
+  margin-top: 0.5rem;
 }
+
+.follow-up-note {
+  width: 15rem;
+  resize: vertical;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
 .trend-panel,
 .trend-table-panel {
   margin-bottom: 22px;

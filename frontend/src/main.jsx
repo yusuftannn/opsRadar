@@ -13,13 +13,17 @@ import WatchlistPage from "./pages/WatchlistPage.jsx";
 const watchlistStorageKey = "operasyon-radar-watchlist";
 const orderKey = (order) => JSON.stringify([order.order_id, order.order_date]);
 const emptyOrders = [];
+const defaultFollowUp = { status: "pending", note: "" };
 
 function readWatchlist() {
   try {
     const saved = JSON.parse(localStorage.getItem(watchlistStorageKey));
-    return new Set(Array.isArray(saved) ? saved : []);
+    const entries = Array.isArray(saved) ? saved : [];
+    return new Map(entries.map((entry) =>
+      typeof entry === "string" ? [entry, defaultFollowUp] : entry,
+    ));
   } catch {
-    return new Set();
+    return new Map();
   }
 }
 
@@ -63,9 +67,19 @@ function App() {
   function toggleWatch(order) {
     const key = orderKey(order);
     setWatchlist((previous) => {
-      const next = new Set(previous);
+      const next = new Map(previous);
       if (next.has(key)) next.delete(key);
-      else next.add(key);
+      else next.set(key, defaultFollowUp);
+      return next;
+    });
+  }
+
+  function updateFollowUp(order, changes) {
+    const key = orderKey(order);
+    setWatchlist((previous) => {
+      if (!previous.has(key)) return previous;
+      const next = new Map(previous);
+      next.set(key, { ...previous.get(key), ...changes });
       return next;
     });
   }
@@ -231,7 +245,10 @@ function App() {
         {page === "schedule" && <DeliveryPlanPage t={t} rows={rows} onSelectOrder={openOrder} busy={busy} language={language} run={run} api={api} />}
         {page === "trends" && <TrendsPage t={t} rows={rows} />}
         {page === "segments" && <SegmentsPage t={t} rows={rows} onSelectOrder={openOrder} />}
-        {page === "watchlist" && <WatchlistPage t={t} rows={watchedRows} onSelectOrder={openOrder} onRemove={toggleWatch} />}
+        {page === "watchlist" && <WatchlistPage
+          t={t} rows={watchedRows} onSelectOrder={openOrder} onRemove={toggleWatch}
+          getFollowUp={(order) => watchlist.get(orderKey(order))} onUpdate={updateFollowUp}
+        />}
         {isCorporatePage && <CorporatePage page={page} t={t} onNavigate={navigate} />}
         <footer>{t.footer}</footer>
       </main>
