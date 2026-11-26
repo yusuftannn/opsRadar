@@ -952,6 +952,21 @@ footer {
   margin-top: 0.5rem;
 }
 
+.delivery-period {
+  width: min(100%, 16rem);
+  margin-bottom: 1rem;
+}
+
+.interventions {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.interventions > .panel {
+  min-width: 0;
+}
+
 .follow-up-note {
   width: 15rem;
   resize: vertical;

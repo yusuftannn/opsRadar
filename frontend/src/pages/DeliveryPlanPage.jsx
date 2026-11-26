@@ -1,11 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { deliveryWindow, expectedDeliveryDate } from "../deliveryDates.js";
 
 const pct = (value) => `${Math.round(value * 100)}%`;
+
+function buildSchedule(rows) {
+  const days = new Map();
+  for (const order of rows) {
+    const date = expectedDeliveryDate(order);
+    if (!days.has(date)) days.set(date, { date, orders: [], high: 0, riskTotal: 0 });
+    const day = days.get(date);
+    day.orders.push(order);
+    day.high += order.level === "Yüksek" ? 1 : 0;
+    day.riskTotal += order.risk;
+  }
+  for (const day of days.values()) {
+    day.orders.sort((a, b) => b.risk - a.risk);
+  }
+  return [...days.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
 
 export default function DeliveryPlanPage({ t, rows, onSelectOrder, busy, language, run, api }) {
   const [plan, setPlan] = useState(null);
   const [schedulePage, setSchedulePage] = useState(1);
   const [expandedDate, setExpandedDate] = useState(null);
+  const [deliveryPeriod, setDeliveryPeriod] = useState("all");
   useEffect(() => {
     setPlan(null);
     setSchedulePage(1);
@@ -13,22 +31,18 @@ export default function DeliveryPlanPage({ t, rows, onSelectOrder, busy, languag
   }, [rows, language]);
   const high = rows.filter((order) => order.level === "Yüksek").length;
   const averageRisk = rows.length ? rows.reduce((total, order) => total + order.risk, 0) / rows.length : 0;
-  const schedule = Object.values(rows.reduce((dates, order) => {
-    const deliveryDate = new Date(`${order.order_date}T00:00:00Z`);
-    deliveryDate.setUTCDate(deliveryDate.getUTCDate() + Number(order.promised_days));
-    const date = deliveryDate.toISOString().slice(0, 10);
-    dates[date] ||= { date, orders: [], high: 0, riskTotal: 0 };
-    dates[date].orders.push(order);
-    dates[date].high += order.level === "Yüksek" ? 1 : 0;
-    dates[date].riskTotal += order.risk;
-    return dates;
-  }, {})).sort((a, b) => a.date.localeCompare(b.date));
-  for (const day of schedule) {
-    day.orders.sort((a, b) => b.risk - a.risk);
-  }
+  const schedule = useMemo(() => buildSchedule(rows), [rows]);
+  const { today, weekEnd } = deliveryWindow();
+  const matchingDays = schedule.filter(({ date }) => {
+    if (deliveryPeriod === "past") return date < today;
+    if (deliveryPeriod === "today") return date === today;
+    if (deliveryPeriod === "week") return date >= today && date < weekEnd;
+    return true;
+  });
   const pageSize = 10;
-  const pageCount = Math.ceil(schedule.length / pageSize);
-  const visibleSchedule = schedule.slice((schedulePage - 1) * pageSize, schedulePage * pageSize);
+  const pageCount = Math.ceil(matchingDays.length / pageSize);
+  const currentPage = Math.min(schedulePage, pageCount || 1);
+  const visibleSchedule = matchingDays.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return <>
     <section className="cards schedule-cards">
@@ -45,8 +59,24 @@ export default function DeliveryPlanPage({ t, rows, onSelectOrder, busy, languag
       {plan && <div className="explanation"><small>{plan.source === "ollama" ? t.scheduleOllama : t.scheduleFallback}</small><p>{plan.text}</p></div>}
     </section>
     <section className="panel schedule-panel">
-      <div className="panel-head"><div><h2>{t.deliveryLoad}</h2><p>{t.deliveryLoadHint}</p></div><span className="pill">{schedule.length} {t.deliveryDates.toLowerCase()}</span></div>
-      {schedule.length ? <div className="table-wrap schedule-table-wrap"><table>
+      <div className="panel-head">
+        <div><h2>{t.deliveryLoad}</h2><p>{t.deliveryLoadHint}</p></div>
+        <span className="pill" aria-live="polite">{matchingDays.length} {t.deliveryDates.toLowerCase()}</span>
+      </div>
+      <label className="filter-field delivery-period">
+        <span>{t.deliveryPeriod}</span>
+        <select value={deliveryPeriod} onChange={(event) => {
+          setDeliveryPeriod(event.target.value);
+          setSchedulePage(1);
+          setExpandedDate(null);
+        }}>
+          <option value="all">{t.allDeliveryDates}</option>
+          <option value="past">{t.pastDeliveryDates}</option>
+          <option value="today">{t.todayDeliveryDates}</option>
+          <option value="week">{t.weekDeliveryDates}</option>
+        </select>
+      </label>
+      {matchingDays.length ? <div className="table-wrap schedule-table-wrap"><table>
         <thead><tr><th>{t.expectedDelivery}</th><th>{t.orderCount}</th><th>{t.highRisk}</th><th>{t.averageRisk}</th><th>{t.orders}</th></tr></thead>
         <tbody>{visibleSchedule.map((day) => {
           const expanded = expandedDate === day.date;
@@ -65,11 +95,11 @@ export default function DeliveryPlanPage({ t, rows, onSelectOrder, busy, languag
             </td>
           </tr>;
         })}</tbody>
-      </table></div> : <p className="empty">{t.noScheduleOrders}</p>}
+      </table></div> : <p className="empty">{schedule.length ? t.noMatchingDeliveryDates : t.noScheduleOrders}</p>}
       {pageCount > 1 && <nav className="schedule-pagination" aria-label={t.deliveryLoad}>
-        <button disabled={schedulePage === 1} onClick={() => setSchedulePage(schedulePage - 1)}>{t.previousPage}</button>
-        <span aria-live="polite">{schedulePage} / {pageCount}</span>
-        <button disabled={schedulePage === pageCount} onClick={() => setSchedulePage(schedulePage + 1)}>{t.nextPage}</button>
+        <button disabled={currentPage === 1} onClick={() => setSchedulePage(currentPage - 1)}>{t.previousPage}</button>
+        <span aria-live="polite">{currentPage} / {pageCount}</span>
+        <button disabled={currentPage === pageCount} onClick={() => setSchedulePage(currentPage + 1)}>{t.nextPage}</button>
       </nav>}
     </section>
   </>;

@@ -9,11 +9,21 @@ import TrendsPage from "./pages/TrendsPage.jsx";
 import SegmentsPage from "./pages/SegmentsPage.jsx";
 import CorporatePage from "./pages/CorporatePage.jsx";
 import WatchlistPage from "./pages/WatchlistPage.jsx";
+import InterventionsPage from "./pages/InterventionsPage.jsx";
 
 const watchlistStorageKey = "operasyon-radar-watchlist";
 const orderKey = (order) => JSON.stringify([order.order_id, order.order_date]);
 const emptyOrders = [];
 const defaultFollowUp = { status: "pending", note: "" };
+
+function compareRisk(previousOrders, nextOrders) {
+  const previousByKey = new Map(previousOrders.map((order) => [orderKey(order), order]));
+  return nextOrders.flatMap((order) => {
+    const previous = previousByKey.get(orderKey(order));
+    if (!previous || (previous.level === "Yüksek") === (order.level === "Yüksek")) return [];
+    return [{ order, previous, enteredHighRisk: order.level === "Yüksek" }];
+  }).sort((a, b) => Number(b.enteredHighRisk) - Number(a.enteredHighRisk) || b.order.risk - a.order.risk);
+}
 
 function readWatchlist() {
   try {
@@ -54,6 +64,7 @@ function App() {
     [selected, setSelected] = useState(null),
     [explanation, setExplanation] = useState(null);
   const [watchlist, setWatchlist] = useState(readWatchlist);
+  const [riskChanges, setRiskChanges] = useState(null);
   const t = messages[language];
 
   useEffect(() => {
@@ -62,6 +73,10 @@ function App() {
 
   function isWatched(order) {
     return watchlist.has(orderKey(order));
+  }
+
+  function getFollowUp(order) {
+    return watchlist.get(orderKey(order));
   }
 
   function toggleWatch(order) {
@@ -98,8 +113,9 @@ function App() {
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [menuOpen]);
 
-  async function refresh() {
+  async function refresh(compareWithCurrent = false) {
     const nextData = await api("/dashboard", undefined, language);
+    setRiskChanges(compareWithCurrent && data ? compareRisk(data.orders, nextData.orders) : null);
     setData(nextData);
     setSelected(null);
     setExplanation(null);
@@ -129,7 +145,7 @@ function App() {
       const body = new FormData();
       body.append("file", file);
       await api(path, { method: "POST", body }, language);
-      await refresh();
+      await refresh(true);
     });
   }
 
@@ -154,6 +170,7 @@ function App() {
     trends: [t.trendsEyebrow, t.trendsTitle, t.trendsSubtitle],
     segments: [t.segmentsEyebrow, t.segmentsTitle, t.segmentsSubtitle],
     watchlist: [t.workspace, t.watchlist, t.watchlistSubtitle],
+    interventions: [t.workspace, t.interventions, t.interventionsSubtitle],
     corporate: [t.corporateEyebrow, t.corporateTitle, t.corporateSubtitle],
     about: [t.aboutEyebrow, t.aboutTitle, t.aboutSubtitle],
     contact: [t.contactEyebrow, t.contactTitle, t.contactSubtitle],
@@ -191,6 +208,7 @@ function App() {
           <button className={`nav ${page === "trends" ? "active" : ""}`} aria-current={page === "trends" ? "page" : undefined} onClick={() => navigate("trends")}>⌁ {t.trends}</button>
           <button className={`nav ${page === "segments" ? "active" : ""}`} aria-current={page === "segments" ? "page" : undefined} onClick={() => navigate("segments")}>▤ {t.segments}</button>
           <button className={`nav ${page === "watchlist" ? "active" : ""}`} aria-current={page === "watchlist" ? "page" : undefined} onClick={() => navigate("watchlist")}>☆ {t.watchlist}</button>
+          <button className={`nav ${page === "interventions" ? "active" : ""}`} aria-current={page === "interventions" ? "page" : undefined} onClick={() => navigate("interventions")}>{t.interventions}</button>
         </nav>
         <nav className="sidebar-nav" aria-label={t.corporateNavigation}>
           <button className={`nav ${isCorporatePage ? "active" : ""}`} aria-current={isCorporatePage ? "page" : undefined} onClick={() => navigate("corporate")}>◎ {t.corporate}</button>
@@ -247,7 +265,10 @@ function App() {
         {page === "segments" && <SegmentsPage t={t} rows={rows} onSelectOrder={openOrder} />}
         {page === "watchlist" && <WatchlistPage
           t={t} rows={watchedRows} onSelectOrder={openOrder} onRemove={toggleWatch}
-          getFollowUp={(order) => watchlist.get(orderKey(order))} onUpdate={updateFollowUp}
+          getFollowUp={getFollowUp} onUpdate={updateFollowUp}
+        />}
+        {page === "interventions" && <InterventionsPage
+          t={t} rows={rows} riskChanges={riskChanges} getFollowUp={getFollowUp} onSelectOrder={openOrder}
         />}
         {isCorporatePage && <CorporatePage page={page} t={t} onNavigate={navigate} />}
         <footer>{t.footer}</footer>
